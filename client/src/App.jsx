@@ -290,7 +290,7 @@ function App() {
 
         {/* Footer */}
         <div className="mt-12 text-center text-gray-500 text-sm">
-          <p>Didukung oleh teknologi canggih AI Microsoft Azure</p>
+          <p>Didukung oleh Microsoft Azure</p>
         </div>
       </div>
 
