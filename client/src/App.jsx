@@ -107,8 +107,8 @@ function App() {
               <Leaf className="w-6 h-6 text-green-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">Rice Plant Health Analyzer</h1>
-              <p className="text-gray-600 text-sm">AI-powered disease detection for rice crops</p>
+              <h1 className="text-2xl font-bold text-gray-800">Alat Pendeteksi Penyakit Padi</h1>
+              <p className="text-gray-600 text-sm">Deteksi penyakit berbasis AI untuk tanaman padi</p>
             </div>
           </div>
         </div>
@@ -122,7 +122,7 @@ function App() {
               <div className="p-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <Camera className="w-5 h-5 text-green-600" />
-                  Upload Plant Image
+                  Unggah Gambar Padi
                 </h2>
 
                 {/* Drag and Drop Area */}
@@ -151,10 +151,10 @@ function App() {
                     </div>
                     <div>
                       <p className="text-lg font-medium text-gray-700">
-                        Drop your image here or click to browse
+                        Letakkan gambar Anda disini atau klik untuk memilih
                       </p>
                       <p className="text-sm text-gray-500 mt-1">
-                        Supports JPG, PNG, and other image formats
+                        Mendukung format JPG, PNG, dan format gambar lainnya
                       </p>
                     </div>
                   </div>
@@ -183,31 +183,31 @@ function App() {
 
             {/* How it Works */}
             <div className="bg-white rounded-2xl shadow-lg border border-green-100 p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">How it works</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Cara Kerja</h3>
               <div className="space-y-3 text-sm text-gray-600">
                 <div className="flex gap-3">
                   <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-green-600 font-semibold text-xs">1</span>
                   </div>
-                  <p>Upload a clear image of your rice plant leaves</p>
+                  <p>Unggah gambar yang jelas dari padi Anda</p>
                 </div>
                 <div className="flex gap-3">
                   <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-green-600 font-semibold text-xs">2</span>
                   </div>
-                  <p>Our AI analyzes the image for signs of disease</p>
+                  <p>AI kami akan menganalisis gambar untuk mendeteksi tanda penyakit pada padi Anda</p>
                 </div>
                 <div className="flex gap-3">
                   <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-green-600 font-semibold text-xs">3</span>
                   </div>
-                  <p>Get instant results and recommendations</p>
+                  <p>Dapatkan hasil dan rekomendasi secara instan</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Results Section */}
+          {/* Results Section ini nanti aja (masih belom fix juga) */}
           <div className="space-y-6">
             {/* Loading State */}
             {isLoading && (
@@ -216,8 +216,8 @@ function App() {
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
                     <Activity className="w-8 h-8 text-blue-600 animate-pulse" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Analyzing Image</h3>
-                  <p className="text-gray-600">Our AI is examining your rice plant...</p>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Sedang menganalisis padi</h3>
+                  <p className="text-gray-600">AI kami sedang bekerja...</p>
                   <div className="mt-4 bg-gray-200 rounded-full h-2 overflow-hidden">
                     <div className="h-full bg-blue-500 rounded-full animate-pulse" style={{ width: '70%' }}></div>
                   </div>
@@ -225,7 +225,7 @@ function App() {
               </div>
             )}
 
-            {/* Results */}
+            {/* Results tapi ini nanti aja (masi blm fix) */}
             {prediction && !isLoading && status && (
               <div className={`bg-white rounded-2xl shadow-lg border overflow-hidden ${status.borderColor}`}>
                 <div className={`p-1 ${status.bgColor}`}></div>
@@ -276,8 +276,8 @@ function App() {
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Activity className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">Ready for Analysis</h3>
-                  <p>Upload an image to get started with AI-powered plant health detection.</p>
+                  <h3 className="text-lg font-medium text-gray-700 mb-2">Siap untuk analisis</h3>
+                  <p>Unggah gambar untuk memulai deteksi kesehatan padi berbasis AI</p>
                 </div>
               </div>
             )}
@@ -286,7 +286,7 @@ function App() {
 
         {/* Footer */}
         <div className="mt-12 text-center text-gray-500 text-sm">
-          <p>Powered by advanced AI technology for agricultural disease detection</p>
+          <p>Didukung oleh teknologi canggih AI Microsoft Azure</p>
         </div>
       </div>
     </div>
