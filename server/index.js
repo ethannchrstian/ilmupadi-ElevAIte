@@ -16,3 +16,16 @@ app.post("/predict", upload.single("image"), (req, res) => {
 });
 
 app.listen(5000, () => console.log("app is running on port 5000"));
+
+const express = require('express');
+const cors = require('cors');
+
+app.use(cors()); // 👈 Allow cross-origin requests (from frontend)
+app.use(express.json());
+
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Hello from backend!' });
+});
+
+const PORT = 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

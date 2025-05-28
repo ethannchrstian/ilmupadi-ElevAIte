@@ -1,13 +1,66 @@
-<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <title>Photo Upload App</title>
+    <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="container">
+        <div class="header">
+          <h1>📸 Photo Upload</h1>
+          <p>Share your memories with the world</p>
+        </div>
+
+        <div class="upload-section">
+          <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📤</div>
+            <div class="upload-text">Drop your photo here or click to browse</div>
+            <div class="upload-subtext">Supports JPG, PNG, GIF up to 10MB</div>
+            <input type="file" class="file-input" id="fileInput" accept="image/*">
+          </div>
+          
+          <div class="preview-container" id="previewContainer">
+            <img class="preview-image" id="previewImage" alt="Preview">
+            <div class="file-info">
+              <div class="file-name" id="fileName"></div>
+              <div class="file-size" id="fileSize"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-group">
+            <label class="form-label" for="photoTitle">Photo Title</label>
+            <input type="text" class="form-input" id="photoTitle" placeholder="Give your photo a title...">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="photoDescription">Description</label>
+            <textarea class="form-input form-textarea" id="photoDescription" placeholder="Tell us about this photo..."></textarea>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-secondary" id="clearBtn">Clear</button>
+          <button class="btn btn-primary" id="submitBtn" disabled>Submit Photo</button>
+        </div>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p>Uploading your photo...</p>
+        </div>
+
+        <div class="success-message" id="successMessage">
+          <h3>🎉 Photo uploaded successfully!</h3>
+          <p>Your photo has been submitted and is ready to share.</p>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.jsx"></script>
+    <script src="script.js"></script>
   </body>
 </html>
