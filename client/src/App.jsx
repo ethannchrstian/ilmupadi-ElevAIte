@@ -98,6 +98,7 @@ function App() {
   const status = getPredictionStatus();
 
   return (
+    
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
       {/* Header */}
       <div className="bg-white/70 backdrop-blur-sm border-b border-green-200/50 sticky top-0 z-10">
@@ -208,9 +209,10 @@ function App() {
             </div>
           </div>
 
-          {/* Results Section tapi ni juga nanti*/}
-          {/* <div className="space-y-6">
-            ini kalo misal lagi loading
+          {/* Results Section tapi ni juga nanti */}
+          
+          <div className="space-y-6">
+            {/* ini kalo misal lagi loading */}
             {isLoading && (
               <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-8">
                 <div className="text-center">
@@ -224,10 +226,10 @@ function App() {
                   </div>
                 </div>
               </div>
-            )} */}
+            )}
 
             {/* Results tapi ini nanti aja kan soalnya blm ada rekomendasi nya */}
-            {/* {prediction && !isLoading && status && (
+            {prediction && !isLoading && status && (
               <div className={`bg-white rounded-2xl shadow-lg border overflow-hidden ${status.borderColor}`}>
                 <div className={`p-1 ${status.bgColor}`}></div>
                 <div className="p-6">
@@ -268,7 +270,8 @@ function App() {
                   </div>
                 </div>
               </div>
-            )} */}
+            )} 
+            
 
             {/* Default State */}
             {!prediction && !isLoading && (
@@ -291,6 +294,7 @@ function App() {
         </div>
       </div>
     </div>
+    
   );
 }
 
