@@ -14,19 +14,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Plant {
-  id     String @id @default(cuid())
-  status Status @default(Healthy)
-  image  String
-}
-
-model disease {
-  id      String @id @default(cuid())
-  disease String
-  cure    String
-}
-
-enum Status {
-  Healthy
-  Unhealthy
+model Analysis {
+  id         Int      @id @default(autoincrement())
+  imageName  String
+  imagePath  String
+  prediction String
+  createdAt  DateTime @default(now())
 }
