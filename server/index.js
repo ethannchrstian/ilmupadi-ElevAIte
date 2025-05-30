@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import { PrismaClient } from "@prisma/client";
+// import bcrypt from 'bcrypt' (ini aku besok mau cb sekalian connect back n front nya buat yg login ya jgn diapa"in duluuu ~olga)
 
 
 const prisma = new PrismaClient();
