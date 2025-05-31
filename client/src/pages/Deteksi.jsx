@@ -99,19 +99,19 @@ const DeteksiPage = ()=>{
 
   return(
     <div className="max-w-4xl mx-auto px-6 py-8">
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="grid md:grid-cols-2 gap-4 sm:gap-8">
         {/* Upload Section */}
         <div className="space-y-6">
           <div className="bg-white rounded-2xl shadow-lg border border-green-100 overflow-hidden">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <Camera className="w-5 h-5 text-green-600" />
+            <div className="p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                 Unggah Gambar Padi
               </h2>
 
               {/* Drag and Drop Area */}
               <div
-                className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${dragActive
+                className={`relative border-2 border-dashed rounded-lg sm:rounded-xl p-4 sm:p-8 text-center transition-all duration-300 cursor-pointer ${dragActive
                   ? 'border-green-400 bg-green-50 scale-105'
                   : 'border-gray-300 hover:border-green-400 hover:bg-green-50/50'
                   }`}
@@ -129,15 +129,15 @@ const DeteksiPage = ()=>{
                   className="hidden"
                 />
 
-                <div className="space-y-4">
-                  <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                    <Upload className="w-8 h-8 text-green-600" />
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center">
+                    <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-lg font-medium text-gray-700">
+                    <p className="text-sm sm:text-lg font-medium text-gray-700">
                       Letakkan gambar Anda disini atau klik untuk memilih
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">
                       Mendukung format JPG, PNG, dan format gambar lainnya
                     </p>
                   </div>
@@ -146,16 +146,16 @@ const DeteksiPage = ()=>{
 
               {/* Image Preview */}
               {imagePreview && (
-                <div className="mt-6">
-                  <div className="relative rounded-xl overflow-hidden border border-gray-200">
+                <div className="mt-4 sm:mt-6">
+                  <div className="relative rounded-lg sm:rounded-xl overflow-hidden border border-gray-200">
                     <img
                       src={imagePreview}
                       alt="Uploaded rice plant"
-                      className="w-full h-64 object-cover"
+                      className="w-full h-48 sm:h-64 object-cover"
                     />
                     <button
                       onClick={resetAnalysis}
-                      className="absolute top-3 right-3 bg-white/90 hover:bg-white text-gray-700 rounded-full p-2 transition-colors"
+                      className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white/90 hover:bg-white text-gray-700 rounded-full p-1.5 sm:p-2 transition-colors touch-manipulation"
                     >
                       ×
                     </button>
