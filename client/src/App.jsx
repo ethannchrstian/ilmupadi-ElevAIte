@@ -267,7 +267,7 @@ function App() {
               </div>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 ">
               {/* Navigation Menu */}
               <nav className="flex gap-2">
                 {navigationItem.map((item) => {
