@@ -40,44 +40,42 @@ const ForumPage = ({ user, isAuthenticated }) => {
 
   // Create new post
   const handleCreatePost = async () => {
-    if (!newPost.title.trim() || !newPost.content.trim()) {
-      setError('Judul dan konten tidak boleh kosong');
-      return;
-    }
+  try {
+    const response = await fetch('/api/posts', {
+      method: 'POST',
+      body: JSON.stringify({
+        title,
+        content,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-    if (!isAuthenticated || !user) {
-      setError('Anda harus login terlebih dahulu');
-      return;
-    }
+    if (!response.ok) {
+      const contentType = response.headers.get('Content-Type');
+      let errorMessage = 'Gagal membuat post';
 
-    try {
-      setError('');
-      const response = await fetch('/api/posts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: newPost.title,
-          content: newPost.content,
-          authorId: user.id
-        }),
-      });
-
-      if (!response.ok) {
+      if (contentType && contentType.includes('application/json')) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Gagal membuat post');
+        errorMessage = errorData.message || errorMessage;
+      } else {
+        const text = await response.text();
+        console.warn('Non-JSON error response:', text);
       }
 
-      const createdPost = await response.json();
-      setPosts([createdPost, ...posts]);
-      setNewPost({ title: '', content: '' });
-      setShowCreateForm(false);
-    } catch (error) {
-      console.error('Error creating post:', error);
-      setError(error.message);
+      throw new Error(errorMessage);
     }
-  };
+
+    const data = await response.json();
+    console.log('Post created:', data);
+    // Bisa redirect atau update state
+  } catch (error) {
+    console.error('Error saat membuat post:', error.message);
+    alert(error.message);
+  }
+};
+
 
   // Delete post
   const handleDeletePost = async (postId) => {
