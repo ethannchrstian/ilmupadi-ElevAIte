@@ -6,16 +6,14 @@ const ForumPage = ({ user, isAuthenticated }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '' });
-  // const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState('');
 
-  // Get current user from localStorage (after login)
-  // useEffect(() => {
-  //   const userData = localStorage.getItem('user');
-  //   if (userData) {
-  //     setCurrentUser(JSON.parse(userData));
-  //   }
-  // }, []);
+  // const [editingPost, setEditingPost] = useState(null);
+  // const [editForm, setEditForm] = useState({ title: '', content: '' });
+
+  // const [replyingTo, setReplyingTo] = useState(null);
+  // const [replyContent, setReplyContent] = useState('');
+  // const [replies, setReplies] = useState({});
 
   // Fetch posts dari API
   const fetchPosts = async () => {
@@ -115,6 +113,117 @@ const ForumPage = ({ user, isAuthenticated }) => {
       setError(error.message);
     }
   };
+
+  // // ambil reply
+  // const fetchReplies = async (postId) => {
+  //   try {
+  //     const response = await fetch(`/api/posts/${postId}/replies`);
+  //     if (response.ok) {
+  //       const repliesData = await response.json();
+  //       setReplies(prev => ({ ...prev, [postId]: repliesData }));
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching replies:', error);
+  //   }
+  // };
+
+  // // edit
+  // const handleStartEdit = (post) => {
+  //   setEditingPost(post.id);
+  //   setEditForm({ title: post.title, content: post.content });
+  // };
+
+  // const handleUpdatePost = async (postId) => {
+  //   if (!editForm.title.trim() || !editForm.content.trim()) {
+  //     setError('Judul dan konten post tidak boleh kosong');
+  //     return;
+  //   }
+
+  //   try {
+  //     setError('');
+  //     const response = await fetch(`/api/posts/${postId}`, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         title: editForm.title,
+  //         content: editForm.content,
+  //         authorId: user.id
+  //       }),
+  //     });
+
+  //     if (!response.ok) {
+  //       const errorData = await response.json();
+  //       throw new Error(errorData.message || 'Gagal mengupdate post');
+  //     }
+
+  //     const updatedPost = await response.json();
+  //     setPosts(posts.map(post => 
+  //       post.id === postId ? { ...post, ...updatedPost } : post
+  //     ));
+  //     setEditingPost(null);
+  //     setEditForm({ title: '', content: '' });
+  //   } catch (error) {
+  //     console.error('Error updating post:', error);
+  //     setError(error.message);
+  //   }
+  // };
+
+  // const handleCancelEdit = () => {
+  //   setEditingPost(null);
+  //   setEditForm({ title: '', content: '' });
+  //   setError('');
+  // };
+
+  // // nge reply
+  // const handleStartReply = async (postId) => {
+  //   setReplyingTo(postId);
+  //   await fetchReplies(postId);
+  // };
+
+  // const handleSubmitReply = async (postId) => {
+  //   if (!replyContent.trim()) {
+  //     setError('Komentar tidak boleh kosong');
+  //     return;
+  //   }
+
+  //   try {
+  //     setError('');
+  //     const response = await fetch(`/api/posts/${postId}/replies`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         content: replyContent,
+  //         authorId: user.id
+  //       }),
+  //     });
+
+  //     if (!response.ok) {
+  //       const errorData = await response.json();
+  //       throw new Error(errorData.message || 'Gagal mengirim komentar');
+  //     }
+
+  //     const newReply = await response.json();
+  //     setReplies(prev => ({
+  //       ...prev,
+  //       [postId]: [...(prev[postId] || []), newReply]
+  //     }));
+  //     setReplyContent('');
+  //     setReplyingTo(null);
+  //   } catch (error) {
+  //     console.error('Error submitting reply:', error);
+  //     setError(error.message);
+  //   }
+  // };
+
+  // const handleCancelReply = () => {
+  //   setReplyingTo(null);
+  //   setReplyContent('');
+  //   setError('');
+  // };
 
   // Format date
   const formatDate = (dateString) => {
@@ -251,6 +360,41 @@ const ForumPage = ({ user, isAuthenticated }) => {
             <div key={post.id} className="bg-white rounded-2xl shadow-lg border border-green-100 p-6 hover:shadow-xl transition-shadow">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
+                  {/* {editingPost === post.id ? (
+                    // Edit Form
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        value={editForm.title}
+                        onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-xl font-semibold"
+                      />
+                      <textarea
+                        value={editForm.content}
+                        onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
+                        rows={4}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                      />
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => handleUpdatePost(post.id)}
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                        >
+                          <Send className="w-4 h-4" />
+                          Simpan
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                        >
+                          <X className="w-4 h-4" />
+                          Batal
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    // Normal Post Display
+                    <> */}
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">{post.title}</h3>
                   <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
                     <div className="flex items-center gap-1">
@@ -261,8 +405,14 @@ const ForumPage = ({ user, isAuthenticated }) => {
                       <Calendar className="w-4 h-4" />
                       <span>{formatDate(post.createdAt)}</span>
                     </div>
+                    {/* {post.updatedAt !== post.createdAt && (
+                      <span className="text-xs text-gray-400">(diedit)</span>
+                    )} */}
                   </div>
+                    {/* </> */}
+                  {/* )} */}
                 </div>
+
                 {isAuthenticated && user && user.id === post.author.id && (
                   <div className="flex gap-2">
                     <button
