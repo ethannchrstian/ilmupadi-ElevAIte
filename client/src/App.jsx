@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Leaf, MessageSquare, Newspaper, User, LogOut, Menu, X } from 'lucide-react';
+import { Leaf, MessageSquare, Newspaper, User, LogOut, Menu, X, Lock } from 'lucide-react';
 
 import DeteksiPage from './pages/Deteksi';
 import ForumPage from './pages/Forum';
@@ -27,16 +27,58 @@ function App() {
     { id: 'berita', label: 'Berita', icon: Newspaper }
   ];
 
+  const AuthGuard = ({ children, requireAuth = false }) => {
+    if (requireAuth && !isAuthenticated) {
+      return (
+        <div className="max-w-4xl mx-auto px-6 py-8">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-8 h-8 text-gray-400" />
+            </div>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Login Diperlukan</h2>
+            <p className="text-gray-600 mb-6">
+              Anda harus login terlebih dahulu untuk menggunakan fitur deteksi penyakit padi.
+            </p>
+            <div className="space-y-4">
+              <button
+                onClick={() => setShowAuth(true)}
+                className="w-full sm:w-auto px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Login Sekarang
+              </button>
+              <div className="text-sm text-gray-500">
+                <p>Belum punya akun? Daftar gratis untuk akses penuh ke semua fitur.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return children;
+  };
+
   const renderContent = () => {
     switch (currentPage) {
       case 'deteksi':
-        return <DeteksiPage />;
+        return (
+          <AuthGuard requireAuth={true}>
+            <DeteksiPage />
+          </AuthGuard>
+        );
       case 'forum':
-        return <ForumPage />;
+        return (
+          <AuthGuard requireAuth={true}>
+            <ForumPage />
+          </AuthGuard>
+        );
       case 'berita':
         return <BeritaPage />;
       default:
-        return <DeteksiPage />;
+        return (
+          <AuthGuard requireAuth={true}>
+            <DeteksiPage />
+          </AuthGuard>
+        );
     }
   };
 
@@ -64,17 +106,27 @@ function App() {
                 {navigationItem.map((item) => {
                   const Icon = item.icon;
                   const isActive = currentPage === item.id;
+                  const requiresAuth = item.id !== 'berita';
                   return (
                     <button
                       key={item.id}
-                      onClick={() => setCurrentPage(item.id)}
-                      className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all touch-manipulation ${isActive
+                      onClick={() => {
+                        if (requiresAuth && !isAuthenticated) {
+                          setShowAuth(true);
+                        } else {
+                          setCurrentPage(item.id);
+                        }
+                      }}
+                      className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all touch-manipulation relative ${isActive
                         ? 'bg-green-100 text-green-700 font-medium'
                         : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
                         }`}
                     >
                       <Icon className="w-4 h-4" />
                       <span>{item.label}</span>
+                      {requiresAuth && !isAuthenticated && (
+                        <Lock className="w-3 h-3 text-gray-400" />
+                      )}
                     </button>
                   );
                 })}
@@ -125,12 +177,19 @@ function App() {
               {navigationItem.map((item) => {
                 const Icon = item.icon;
                 const isActive = currentPage === item.id;
+                const requiresAuth = item.id !== 'berita';
+
                 return (
                   <button
                     key={item.id}
                     onClick={() => {
-                      setCurrentPage(item.id);
-                      setIsMobileMenuOpen(false);
+                      if (requiresAuth && !isAuthenticated) {
+                        setShowAuth(true);
+                        setIsMobileMenuOpen(false);
+                      } else {
+                        setCurrentPage(item.id);
+                        setIsMobileMenuOpen(false);
+                      }
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all touch-manipulation ${isActive
                       ? 'bg-green-100 text-green-700 font-medium'
@@ -139,6 +198,9 @@ function App() {
                   >
                     <Icon className="w-5 h-5" />
                     <span>{item.label}</span>
+                    {requiresAuth && !isAuthenticated && (
+                      <Lock className="w-3 h-3 text-gray-400 ml-auto" />
+                    )}
                   </button>
                 );
               })}
