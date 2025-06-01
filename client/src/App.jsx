@@ -68,7 +68,7 @@ function App() {
       case 'forum':
         return (
           <AuthGuard requireAuth={true}>
-            <ForumPage />
+            <ForumPage user={user} isAuthenticated={isAuthenticated} />
           </AuthGuard>
         );
       case 'berita':

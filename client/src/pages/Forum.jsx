@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { MessageSquare, Plus, User, Calendar, Edit3, Trash2 } from 'lucide-react';
 
-const ForumPage = () => {
+const ForumPage = ({ user, isAuthenticated }) => {
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '' });
-  const [currentUser, setCurrentUser] = useState(null);
+  // const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState('');
 
   // Get current user from localStorage (after login)
-  useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setCurrentUser(JSON.parse(userData));
-    }
-  }, []);
+  // useEffect(() => {
+  //   const userData = localStorage.getItem('user');
+  //   if (userData) {
+  //     setCurrentUser(JSON.parse(userData));
+  //   }
+  // }, []);
 
   // Fetch posts dari API
   const fetchPosts = async () => {
@@ -45,7 +45,7 @@ const ForumPage = () => {
       return;
     }
 
-    if (!currentUser) {
+    if (!isAuthenticated || !user) {
       setError('Anda harus login terlebih dahulu');
       return;
     }
@@ -60,7 +60,7 @@ const ForumPage = () => {
         body: JSON.stringify({
           title: newPost.title,
           content: newPost.content,
-          authorId: currentUser.id
+          authorId: user.id
         }),
       });
 
@@ -83,7 +83,7 @@ const ForumPage = () => {
   const handleDeletePost = async (postId) => {
     if (!confirm('Yakin ingin menghapus post ini?')) return;
 
-    if (!currentUser) {
+    if (!isAuthenticated || !user) {
       setError('Anda harus login terlebih dahulu');
       return;
     }
@@ -96,7 +96,7 @@ const ForumPage = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          authorId: currentUser.id
+          authorId: user.id
         }),
       });
 
@@ -168,9 +168,9 @@ const ForumPage = () => {
               <p className="text-gray-600">Berbagi pengalaman dan diskusi pertanian</p>
             </div>
           </div>
-          {currentUser ? (
+          {isAuthenticated && user ? (
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">Halo, {currentUser.name}!</span>
+              <span className="text-sm text-gray-600">Halo, {user.name}!</span>
               <button
                 onClick={() => setShowCreateForm(!showCreateForm)}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
@@ -188,7 +188,7 @@ const ForumPage = () => {
       </div>
 
       {/* Create Post Form */}
-      {showCreateForm && currentUser && (
+      {showCreateForm && isAuthenticated && user && (
         <div className="bg-white rounded-2xl shadow-lg border border-green-100 p-6 mb-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Buat Post Baru</h3>
           <div>
@@ -259,7 +259,7 @@ const ForumPage = () => {
                     </div>
                   </div>
                 </div>
-                {currentUser && currentUser.id === post.author.id && (
+                {isAuthenticated && user && user.id === post.author.id && (
                   <div className="flex gap-2">
                     <button
                       onClick={() => {/* TODO: Implement edit */}}
