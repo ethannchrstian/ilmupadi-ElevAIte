@@ -13,16 +13,20 @@ model Analysis {
   imageName  String
   imagePath  String
   prediction String
+  confidence Float?
+  userId     Int // Add user association
+  user       User     @relation(fields: [userId], references: [id])
   createdAt  DateTime @default(now())
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  name     String
-  email    String  @unique
-  password String
-  createdAt DateTime @default(now())
-  posts Post[] 
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  posts     Post[]
+  analyses  Analysis[] // Add this relationship
 }
 
 model Post {
@@ -33,6 +37,6 @@ model Post {
   author    User     @relation(fields: [authorId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@map("posts")
 }

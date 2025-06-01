@@ -61,14 +61,19 @@ const BeritaPage = () => {
     return (
         <div className="max-w-7xl mx-auto px-6 py-8">
             {/* Header */}
-            <div className="bg-white rounded-2xl shadow-lg border border-green-100 p-8 mb-8">
-                <div className="text-center">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Newspaper className="w-8 h-8 text-green-600" />
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-5 sm:p-6 mb-8">
+                <div className="flex items-center gap-4 sm:gap-5">
+                    <div className="flex-shrink-0 p-3 bg-green-100 rounded-full">
+                        <Newspaper className="w-6 h-6 sm:w-7 sm:h-7 text-green-600" />
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Selamat Datang di Halaman Berita!</h1>
-                    <p className="text-gray-600">Temukan berita terbaru seputar pertanian, penyakit tanaman, dan teknologi pertanian modern di sini!
-                    </p>
+                    <div>
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+                            Berita Pertanian Terkini
+                        </h1>
+                        <p className="text-sm text-gray-600 mt-1">
+                            Temukan berita terbaru seputar pertanian, penyakit tanaman, dan teknologi pertanian modern di sini!
+                        </p>
+                    </div>
                 </div>
             </div>
 

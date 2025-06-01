@@ -5,7 +5,8 @@ const AuthModal = ({
     showAuth,
     setShowAuth,
     setIsAuthenticated,
-    setUser
+    setUser,
+    setCurrentPage
 }) => {
     const [authMode, setAuthMode] = useState('login');
     const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +30,7 @@ const AuthModal = ({
         setIsLoading(true);
 
         try {
-            const res = await fetch('http://localhost:5000/api/login', {
+            const res = await fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -39,16 +40,32 @@ const AuthModal = ({
             });
 
             const data = await res.json();
-            if (!res.ok) throw new Error(data.message || data.error || 'Login failed');
+            if (!res.ok) {
 
-            setUser(data);
+                let errorMessage = 'Login failed';
+                if (res.headers.get('content-type')?.includes('application/json')) {
+                    errorMessage = data.message || data.error || 'Login failed';
+                } else {
+                    const textError = await res.text();
+                    errorMessage = textError || errorMessage;
+                }
+                throw new Error(errorMessage);
+            }
+
+            const userDataToStore = { id: data.id, name: data.name, email: data.email };
+            localStorage.setItem('sahabatTaniUser', JSON.stringify(userDataToStore));
+
+            setUser(userDataToStore);
             setIsAuthenticated(true);
             setShowAuth(false);
+            if (setCurrentPage) {
+                setCurrentPage('dashboard');
+            }
             setAuthForm({ email: '', password: '', name: '', confirmPassword: '' });
-            alert('Login berhasil!');
+
         } catch (error) {
             console.error('Login error:', error.message);
-            alert(error.message);
+            alert(`Login Gagal: ${error.message}`);
         } finally {
             setIsLoading(false);
         }
@@ -65,7 +82,7 @@ const AuthModal = ({
         setIsLoading(true);
 
         try {
-            const res = await fetch('http://localhost:5000/api/register', {
+            const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -76,16 +93,31 @@ const AuthModal = ({
             });
 
             const data = await res.json();
-            if (!res.ok) throw new Error(data.message || data.error || 'Register failed');
+            if (!res.ok) {
+                let errorMessage = 'Registrasi gagal';
+                if (res.headers.get('content-type')?.includes('application/json')) {
+                    errorMessage = data.message || data.error || 'Registrasi gagal';
+                } else {
+                    const textError = await res.text();
+                    errorMessage = textError || errorMessage;
+                }
+                throw new Error(errorMessage);
+            }
 
-            setUser(data);
+            const userDataToStore = { id: data.id, name: data.name, email: data.email };
+            localStorage.setItem('sahabatTaniUser', JSON.stringify(userDataToStore));
+
+            setUser(userDataToStore);
             setIsAuthenticated(true);
             setShowAuth(false);
+            if (setCurrentPage) {
+                setCurrentPage('dashboard');
+            }
             setAuthForm({ email: '', password: '', name: '', confirmPassword: '' });
-            alert('Registrasi berhasil!');
+
         } catch (error) {
             console.error('Register error:', error.message);
-            alert(error.message);
+            alert(`Registrasi Gagal: ${error.message}`);
         } finally {
             setIsLoading(false);
         }
@@ -105,7 +137,7 @@ const AuthModal = ({
                             onClick={() => setShowAuth(false)}
                             className="text-gray-500 hover:text-gray-900 text-xl font-bold"
                         >
-                            ×
+                            &times;
                         </button>
                     </div>
 
@@ -160,6 +192,7 @@ const AuthModal = ({
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
                                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                    aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
                                 >
                                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
@@ -186,7 +219,7 @@ const AuthModal = ({
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full text-green-700 bg-green-200 hover:bg-green-700 disabled:bg-green-400 hover:text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                            className="w-full text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400 font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
                         >
                             {isLoading ? (
                                 <>
@@ -204,7 +237,7 @@ const AuthModal = ({
                             {authMode === 'login' ? 'Belum punya akun?' : 'Sudah punya akun?'}
                             <button
                                 onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
-                                className="ml-2 text-green-700 bg-green-100 px-3 py-1 rounded font-medium hover:bg-green-200 transition-colors"
+                                className="ml-2 text-green-700 bg-green-50 px-3 py-1 rounded-md font-medium hover:bg-green-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
                             >
                                 {authMode === 'login' ? 'Daftar disini' : 'Masuk disini'}
                             </button>

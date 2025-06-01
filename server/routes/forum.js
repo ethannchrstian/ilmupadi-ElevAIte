@@ -4,7 +4,45 @@ import { PrismaClient } from '@prisma/client';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Get all posts
+router.get('/posts/user/:userId', async (req, res) => {
+    console.log(`--- [SERVER LOG] FORUM.JS: Hit /api/posts/user/${req.params.userId} ---`); // For debugging
+    const { userId } = req.params;
+
+    try {
+        const idToQuery = parseInt(userId);
+        if (isNaN(idToQuery)) {
+            console.error(`--- [SERVER LOG] FORUM.JS: Invalid userId for posts: ${userId} ---`);
+            return res.status(400).json({ message: 'User ID tidak valid.' });
+        }
+
+        console.log(`--- [SERVER LOG] FORUM.JS: Querying posts for authorId: ${idToQuery} ---`);
+        const userPosts = await prisma.post.findMany({
+            where: {
+                authorId: idToQuery
+            },
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+
+        });
+
+        console.log(`--- [SERVER LOG] FORUM.JS: Found ${userPosts.length} posts for authorId: ${idToQuery} ---`);
+        res.json(userPosts);
+    } catch (error) {
+        console.error(`--- [SERVER LOG] FORUM.JS: Error fetching posts for user ${userId}:`, error);
+        res.status(500).json({ message: 'Gagal mengambil postingan pengguna.' });
+    }
+});
+
 router.get('/posts', async (req, res) => {
     try {
         const posts = await prisma.post.findMany({

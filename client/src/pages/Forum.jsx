@@ -161,30 +161,33 @@ const ForumPage = ({ user, isAuthenticated }) => {
       )}
 
       {/* Header */}
-      <div className="bg-white rounded-2xl shadow-lg border border-green-100 p-8 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+      <div className="bg-white rounded-2xl shadow-lg border border-green-100 p-6 sm:p-8 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
+
+          <div className="flex items-center gap-4 flex-grow">
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
               <MessageSquare className="w-6 h-6 text-green-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">Forum Petani</h1>
-              <p className="text-gray-600">Berbagi pengalaman dan diskusi pertanian</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Forum Petani</h1>
+              <p className="text-sm sm:text-base text-gray-600">Berbagi pengalaman dan saling berdiskusi!</p>
             </div>
           </div>
+
+
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">Halo, {user.name}!</span>
+            <div className="flex flex-col items-stretch text-center md:text-right md:items-end gap-2 mt-4 md:mt-0 md:flex-row md:items-center md:gap-3 flex-shrink-0">
+
               <button
                 onClick={() => setShowCreateForm(!showCreateForm)}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm font-medium w-full md:w-auto shadow-sm"
               >
                 <Plus className="w-4 h-4" />
                 Buat Post
               </button>
             </div>
           ) : (
-            <div className="text-gray-500 text-sm">
+            <div className="text-gray-500 text-sm mt-4 md:mt-0 text-center md:text-right">
               <p>Login untuk membuat post</p>
             </div>
           )}
