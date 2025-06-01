@@ -23,11 +23,11 @@ const ForumPage = ({ user, isAuthenticated }) => {
       setIsLoading(true);
       setError('');
       const response = await fetch('/api/posts');
-      
+
       if (!response.ok) {
         throw new Error('Gagal mengambil data posts');
       }
-      
+
       const data = await response.json();
       setPosts(data);
     } catch (error) {
@@ -40,41 +40,47 @@ const ForumPage = ({ user, isAuthenticated }) => {
 
   // Create new post
   const handleCreatePost = async () => {
-  try {
-    const response = await fetch('/api/posts', {
-      method: 'POST',
-      body: JSON.stringify({
-        title,
-        content,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    console.log('User object:', user);
+    console.log('User ID:', user?.id);
+    try {
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: newPost.title,
+          content: newPost.content,
+          authorId: user.id,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    if (!response.ok) {
-      const contentType = response.headers.get('Content-Type');
-      let errorMessage = 'Gagal membuat post';
+      if (!response.ok) {
+        const contentType = response.headers.get('Content-Type');
+        let errorMessage = 'Gagal membuat post';
 
-      if (contentType && contentType.includes('application/json')) {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
-      } else {
-        const text = await response.text();
-        console.warn('Non-JSON error response:', text);
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } else {
+          const text = await response.text();
+          console.warn('Non-JSON error response:', text);
+        }
+
+        throw new Error(errorMessage);
       }
 
-      throw new Error(errorMessage);
+      const data = await response.json();
+      console.log('Post created:', data);
+      fetchPosts(); // Refresh the posts list
+      setNewPost({ title: '', content: '' }); // Reset form
+      setShowCreateForm(false)
+      // Bisa redirect atau update state
+    } catch (error) {
+      console.error('Error saat membuat post:', error.message);
+      alert(error.message);
     }
-
-    const data = await response.json();
-    console.log('Post created:', data);
-    // Bisa redirect atau update state
-  } catch (error) {
-    console.error('Error saat membuat post:', error.message);
-    alert(error.message);
-  }
-};
+  };
 
 
   // Delete post
@@ -145,7 +151,7 @@ const ForumPage = ({ user, isAuthenticated }) => {
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
           <p>{error}</p>
-          <button 
+          <button
             onClick={() => setError('')}
             className="text-red-500 hover:text-red-700 text-sm mt-1"
           >
@@ -260,7 +266,7 @@ const ForumPage = ({ user, isAuthenticated }) => {
                 {isAuthenticated && user && user.id === post.author.id && (
                   <div className="flex gap-2">
                     <button
-                      onClick={() => {/* TODO: Implement edit */}}
+                      onClick={() => {/* TODO: Implement edit */ }}
                       className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Edit post"
                     >
