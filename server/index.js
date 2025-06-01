@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import predictRouter from './routes/prediction.js';
 import authRouter from './routes/auth.js';
 import newsRouter from './routes/news.js';
+import forumRouter from './routes/forum.js';
+
 
 dotenv.config();
 const app = express();
@@ -19,6 +21,7 @@ app.use(express.json());
 app.use('/api', predictRouter);
 app.use('/api', authRouter);
 app.use('/api', newsRouter);
+app.use('/api', forumRouter);
 
 // Check server
 app.get("/health", (req, res) => {
