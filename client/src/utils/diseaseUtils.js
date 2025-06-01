@@ -1,11 +1,8 @@
-// src/utils/diseaseUtils.js
-
-// Make sure to 'export' each function and constant you want to use in other files.
 export const diseaseDatabase = {
     'healthy': {
         name: 'Padi Sehat',
         isHealthy: true,
-        severity: 'N/A', // Good practice to have severity for all, even if N/A
+        severity: 'N/A',
         description: 'Tanaman padi dalam kondisi sehat tanpa tanda-tanda penyakit.',
         treatments: [],
         prevention: [
@@ -40,7 +37,8 @@ export const diseaseDatabase = {
         ],
         prevention: ['Pemupukan berimbang (N, P, K, dan unsur mikro).', 'Hindari kekurangan Kalium (K) dan Silika (Si).', 'Gunakan benih sehat dan perlakukan benih dengan fungisida.', 'Sanitasi sisa tanaman setelah panen.']
     },
-    'narrow_brown_spot': {
+
+    'narrow_brown_leaf_spot': {
         name: 'Bercak Coklat Sempit',
         isHealthy: false,
         severity: 'Sedang',
@@ -101,7 +99,7 @@ export const diseaseDatabase = {
         ],
         prevention: ['Tanam serempak.', 'Penggunaan perangkap.', 'Sanitasi gulma yang menjadi inang alternatif.', 'Konservasi musuh alami.']
     }
-    // Add any other diseases your model might predict and their details
+    //Add more diseases later on
 };
 
 export const findDiseaseKey = (tagName) => {
@@ -123,27 +121,30 @@ export const findDiseaseKey = (tagName) => {
     }
     const keys = Object.keys(diseaseDatabase);
     for (const key of keys) {
+
         if (normalizedTag.includes(key) || key.includes(normalizedTag)) {
             return key;
         }
     }
-    return normalizedTag;
+    return normalizedTag; // Fallback: return the normalized tag itself
 };
 
 export const formatPredictionName = (tagName) => {
     if (!tagName) return "Tidak Diketahui";
-    return tagName.split(/[_\s-]/)
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    return tagName.replace(/_/g, ' ')
+        .split(/[\s-]/)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
 };
 
 export const getSeverityColor = (severity) => {
-    if (!severity) return 'text-gray-600 bg-gray-100 border-gray-300'; // Default color
+    if (!severity) return 'text-gray-600 bg-gray-100 border-gray-300';
     switch (severity.toLowerCase()) {
         case 'tinggi': return 'text-red-700 bg-red-100 border-red-300';
         case 'sangat tinggi': return 'text-red-800 bg-red-200 border-red-400';
         case 'sedang': return 'text-yellow-700 bg-yellow-100 border-yellow-300';
         case 'rendah': return 'text-blue-700 bg-blue-100 border-blue-300';
+        case 'n/a': return 'text-gray-700 bg-gray-100 border-gray-300';
         default: return 'text-gray-700 bg-gray-100 border-gray-300';
     }
 };

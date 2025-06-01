@@ -1,36 +1,70 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     User, Activity, MessageSquare, Leaf, Trash2, AlertCircle, CheckCircle, RefreshCw,
-    Info, Shield, Droplets, Calendar, Bug, XCircle // Added icons for modal
+    Info, Shield, Droplets, Calendar, Bug, XCircle
 } from 'lucide-react';
 
-// Assuming you've moved these to a utility file as recommended:
+
 import { diseaseDatabase, findDiseaseKey, formatPredictionName, getSeverityColor } from '../utils/diseaseUtils.js'; // Adjust path if needed
+
+const ANALYSES_PER_PAGE = 5;
 
 const UserDashboard = ({ user }) => {
     const [activeTab, setActiveTab] = useState('overview');
     const [userAnalyses, setUserAnalyses] = useState([]);
     const [userPosts, setUserPosts] = useState([]);
+
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // State for the details modal
+
+    const [currentPageAnalyses, setCurrentPageAnalyses] = useState(1);
+    const [hasMoreAnalyses, setHasMoreAnalyses] = useState(true);
+    const [isLoadingMoreAnalyses, setIsLoadingMoreAnalyses] = useState(false);
+    const [totalAnalysesCount, setTotalAnalysesCount] = useState(0);
+
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [detailedAnalysis, setDetailedAnalysis] = useState(null);
 
-    const fetchUserAnalyses = useCallback(async () => {
+    const fetchUserAnalyses = useCallback(async (pageToFetch = 1, isLoadMoreAction = false) => {
         if (!user?.id) return;
+
+        if (isLoadMoreAction) {
+            setIsLoadingMoreAnalyses(true);
+        } else {
+
+            setUserAnalyses([]);
+        }
+
+
         try {
-            const response = await fetch(`/api/analysis/user/${user.id}`);
+            const offset = (pageToFetch - 1) * ANALYSES_PER_PAGE;
+            const response = await fetch(`/api/analysis/user/${user.id}?limit=${ANALYSES_PER_PAGE}&offset=${offset}`);
+
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: 'Gagal mengambil riwayat analisis (server error)' }));
                 throw new Error(errorData.message);
             }
             const data = await response.json();
-            setUserAnalyses(data.analyses || []);
+
+            setUserAnalyses(prevAnalyses =>
+                isLoadMoreAction ? [...prevAnalyses, ...(data.analyses || [])] : (data.analyses || [])
+            );
+            setHasMoreAnalyses(data.hasMore || false);
+            setTotalAnalysesCount(data.totalCount || 0);
+            setCurrentPageAnalyses(pageToFetch);
+
         } catch (err) {
             console.error('Error fetching user analyses:', err);
-            setError(prev => prev ? `${prev}\nAnalisis: ${err.message}` : `Analisis: ${err.message}`);
+            setError(prevError => {
+                const newErrorMessage = `Riwayat Analisis: ${err.message}`;
+                return prevError && isLoadMoreAction ? `${prevError}\n${newErrorMessage}` : newErrorMessage;
+            });
+        } finally {
+            if (isLoadMoreAction) {
+                setIsLoadingMoreAnalyses(false);
+            }
+
         }
     }, [user?.id]);
 
@@ -46,7 +80,7 @@ const UserDashboard = ({ user }) => {
             setUserPosts(data || []);
         } catch (err) {
             console.error('Error fetching user posts:', err);
-            setError(prev => prev ? `${prev}\nPosts: ${err.message}` : `Posts: ${err.message}`);
+            setError(prevError => `${prevError ? prevError + '\n' : ''}Postingan Forum: ${err.message}`);
         }
     }, [user?.id]);
 
@@ -63,7 +97,10 @@ const UserDashboard = ({ user }) => {
                 const errorData = await response.json().catch(() => ({ message: 'Gagal menghapus analisis (server error)' }));
                 throw new Error(errorData.message);
             }
-            setUserAnalyses(prevAnalyses => prevAnalyses.filter(analysis => analysis.id !== analysisId));
+            // Refetch analyses from page 1 to update the list 
+            setCurrentPageAnalyses(1);
+            setHasMoreAnalyses(true);
+            await fetchUserAnalyses(1, false);
         } catch (err) {
             console.error('Error deleting analysis:', err);
             setError(err.message);
@@ -115,7 +152,7 @@ const UserDashboard = ({ user }) => {
     };
 
     const getStats = () => {
-        const totalAnalyses = userAnalyses.length;
+        const loadedAnalysesCount = userAnalyses.length;
         let healthyCount = 0;
         userAnalyses.forEach(rawAnalysis => {
             const fullInfo = getFullAnalysisInfo(rawAnalysis);
@@ -123,28 +160,46 @@ const UserDashboard = ({ user }) => {
                 healthyCount++;
             }
         });
-        const diseaseCount = totalAnalyses - healthyCount;
+        const diseaseCount = loadedAnalysesCount - healthyCount;
         const totalPosts = userPosts.length;
 
         return {
-            totalAnalyses, healthyCount, diseaseCount, totalPosts,
-            healthyPercentage: totalAnalyses > 0 ? Math.round((healthyCount / totalAnalyses) * 100) : 0
+            totalAnalyses: totalAnalysesCount,
+            healthyCount,
+            diseaseCount,
+            totalPosts,
+            healthyPercentage: loadedAnalysesCount > 0 ? Math.round((healthyCount / loadedAnalysesCount) * 100) : 0
         };
     };
 
     useEffect(() => {
         if (user?.id) {
-            const fetchData = async () => {
-                setIsLoading(true);
-                setError('');
-                await Promise.all([fetchUserAnalyses(), fetchUserPosts()]);
+            setIsLoading(true);
+            setError('');
+            setCurrentPageAnalyses(1);
+            setHasMoreAnalyses(true);
+            setTotalAnalysesCount(0);
+
+            Promise.all([
+                fetchUserAnalyses(1, false),
+                fetchUserPosts()
+            ]).catch((err) => {
+                console.error("Error during initial data fetch in useEffect:", err);
+                // setError handled within individual fetch functions
+            }).finally(() => {
                 setIsLoading(false);
-            };
-            fetchData();
+            });
         } else {
+            // Clear data and reset states if no user
+            setUserAnalyses([]);
+            setUserPosts([]);
+            setTotalAnalysesCount(0);
+            setCurrentPageAnalyses(1);
+            setHasMoreAnalyses(false); // No data to load
             setIsLoading(false);
+            setError('');
         }
-    }, [user, fetchUserAnalyses, fetchUserPosts]);
+    }, [user?.id, fetchUserAnalyses, fetchUserPosts]);
 
     const openDetailsModal = (analysisRecord) => {
         const fullInfo = getFullAnalysisInfo(analysisRecord);
@@ -162,7 +217,8 @@ const UserDashboard = ({ user }) => {
         );
     }
 
-    if (isLoading) {
+    // Loading spinner
+    if (isLoading && userAnalyses.length === 0) {
         return (
             <div className="max-w-4xl mx-auto px-6 py-12 text-center">
                 <RefreshCw className="w-12 h-12 text-green-600 animate-spin mx-auto" />
@@ -176,21 +232,27 @@ const UserDashboard = ({ user }) => {
     return (
         <>
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {error && (
-                    <div className="mb-6 bg-red-50 border border-red-300 rounded-lg p-4 text-center">
-                        <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
-                        <p className="text-red-700 font-medium">Terjadi Kesalahan:</p>
-                        <pre className="text-red-600 text-sm whitespace-pre-wrap">{error}</pre>
-                        <button
-                            onClick={() => {
-                                setError('');
-                                setIsLoading(true);
-                                Promise.all([fetchUserAnalyses(), fetchUserPosts()]).finally(() => setIsLoading(false));
-                            }}
-                            className="mt-3 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
-                        >
-                            Coba Lagi
-                        </button>
+                {error && !isLoadingMoreAnalyses && ( // Avoid showing main error if only "load more" fails
+                    <div className="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-md" role="alert">
+                        <div className="flex">
+                            <div className="py-1"><AlertCircle className="h-6 w-6 text-red-500 mr-3" /></div>
+                            <div>
+                                <p className="font-bold">Terjadi Kesalahan</p>
+                                <pre className="text-sm whitespace-pre-wrap">{error}</pre>
+                                <button
+                                    onClick={() => {
+                                        setError('');
+                                        if (user?.id) {
+                                            setIsLoading(true);
+                                            Promise.all([fetchUserAnalyses(1, false), fetchUserPosts()]).finally(() => setIsLoading(false));
+                                        }
+                                    }}
+                                    className="mt-2 text-sm text-red-700 hover:text-red-900 font-semibold"
+                                >
+                                    Coba Lagi Memuat Data Awal
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -212,13 +274,8 @@ const UserDashboard = ({ user }) => {
                     <nav className="-mb-px flex space-x-2 sm:space-x-8 overflow-x-auto" aria-label="Tabs">
                         {['overview', 'analyses', 'posts'].map((tab) => (
                             <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={`whitespace-nowrap py-3 px-3 sm:px-4 border-b-2 font-medium text-sm sm:text-base capitalize transition-colors focus:outline-none
-                                    ${activeTab === tab
-                                        ? 'border-green-500 text-green-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                    }`}
+                                key={tab} onClick={() => setActiveTab(tab)}
+                                className={`whitespace-nowrap py-3 px-3 sm:px-4 border-b-2 font-medium text-sm sm:text-base capitalize transition-colors focus:outline-none ${activeTab === tab ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
                             >
                                 {tab === 'overview' ? 'Ringkasan' : tab === 'analyses' ? 'Riwayat Analisis' : 'Postingan Saya'}
                             </button>
@@ -229,10 +286,10 @@ const UserDashboard = ({ user }) => {
                 <div>
                     {activeTab === 'overview' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5 sm:gap-6">
-                            <StatCard icon={<Activity size={28} />} title="Total Analisis" value={stats.totalAnalyses} color="blue" />
+                            <StatCard icon={<Activity size={28} />} title="Total Analisis Tersimpan" value={stats.totalAnalyses} color="blue" />
                             <StatCard icon={<MessageSquare size={28} />} title="Total Postingan Forum" value={stats.totalPosts} color="purple" />
-                            <StatCard icon={<CheckCircle size={28} />} title="Padi Sehat (dari analisis)" value={stats.healthyCount} subValue={`${stats.healthyPercentage}% dari total`} color="green" />
-                            <StatCard icon={<AlertCircle size={28} />} title="Padi Sakit (dari analisis)" value={stats.diseaseCount} subValue={`${100 - stats.healthyPercentage}% dari total`} color="red" />
+                            <StatCard icon={<CheckCircle size={28} />} title="Padi Sehat (dari termuat)" value={stats.healthyCount} subValue={`${stats.healthyPercentage}% dari analisis termuat`} color="green" />
+                            <StatCard icon={<AlertCircle size={28} />} title="Padi Sakit (dari termuat)" value={stats.diseaseCount} subValue={`${100 - stats.healthyPercentage}% dari analisis termuat`} color="red" />
                         </div>
                     )}
 
@@ -241,9 +298,10 @@ const UserDashboard = ({ user }) => {
                             <div className="p-5 sm:p-6">
                                 <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-6 flex items-center">
                                     <Leaf className="w-6 h-6 sm:w-7 sm:h-7 mr-3 text-green-600" /> Riwayat Analisis Saya
+                                    <span className="text-base font-normal text-gray-500 ml-2">({userAnalyses.length} dari {totalAnalysesCount} ditampilkan)</span>
                                 </h2>
-                                {userAnalyses.length === 0 && !isLoading ? (
-                                    <div className="text-center py-8">
+                                {userAnalyses.length === 0 && !isLoading && !isLoadingMoreAnalyses ? (
+                                    <div className="text-center py-10">
                                         <Leaf className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                                         <p className="text-gray-500">Anda belum melakukan analisis apapun.</p>
                                     </div>
@@ -253,19 +311,19 @@ const UserDashboard = ({ user }) => {
                                             const { listItemDisplay } = getFullAnalysisInfo(analysis);
                                             return (
                                                 <li key={analysis.id} className={`p-4 rounded-lg border flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4 transition-all hover:shadow-md ${listItemDisplay.bgColor} ${listItemDisplay.borderColor}`}>
-                                                    <div className="flex-1">
+                                                    <div className="flex-1 min-w-0"> {/* Added min-w-0 for better flex handling */}
                                                         <div className="flex items-center justify-between mb-1.5">
-                                                            <div className="flex items-center">
+                                                            <div className="flex items-center min-w-0"> {/* Added min-w-0 */}
                                                                 <listItemDisplay.icon className={`w-5 h-5 mr-2 flex-shrink-0 ${listItemDisplay.color}`} />
-                                                                <span className={`font-semibold text-md ${listItemDisplay.color}`}>{listItemDisplay.displayName}</span>
+                                                                <span className={`font-semibold text-md truncate ${listItemDisplay.color}`}>{listItemDisplay.displayName}</span>
                                                             </div>
                                                             {listItemDisplay.severity && listItemDisplay.severity !== 'N/A' && (
-                                                                <span className={`ml-2 px-2 py-0.5 text-xs rounded-full border font-medium ${getSeverityColor(listItemDisplay.severity)}`}>
+                                                                <span className={`ml-2 px-2 py-0.5 text-xs rounded-full border font-medium flex-shrink-0 ${getSeverityColor(listItemDisplay.severity)}`}>
                                                                     {listItemDisplay.severity}
                                                                 </span>
                                                             )}
                                                         </div>
-                                                        <p className="text-sm text-gray-700">
+                                                        <p className="text-sm text-gray-700 truncate">
                                                             Gambar: <span className="font-medium">{analysis.imageName || 'N/A'}</span>
                                                             {analysis.confidence !== null && typeof analysis.confidence === 'number' &&
                                                                 <span className="text-gray-600 text-xs"> (Akurasi Model: {(analysis.confidence * 100).toFixed(1)}%)</span>
@@ -275,10 +333,10 @@ const UserDashboard = ({ user }) => {
                                                             Tanggal: {formatDate(analysis.createdAt)}
                                                         </p>
                                                     </div>
-                                                    <div className="flex-shrink-0 mt-2 sm:mt-0 self-center flex items-center gap-2">
+                                                    <div className="flex-shrink-0 mt-3 sm:mt-0 self-start sm:self-center flex items-center gap-2">
                                                         <button
                                                             onClick={() => openDetailsModal(analysis)}
-                                                            className="px-3 py-1.5 text-xs bg-green-600 hover:bg-green-700 text-white font-medium rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                                            className="px-3 py-1.5 text-xs bg-green-500 hover:bg-green-600 text-white font-medium rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2"
                                                         >
                                                             Lihat Detail
                                                         </button>
@@ -295,6 +353,26 @@ const UserDashboard = ({ user }) => {
                                         })}
                                     </ul>
                                 )}
+
+                                <div className="mt-8 text-center">
+                                    {isLoadingMoreAnalyses && (
+                                        <div className="inline-flex items-center text-gray-500 py-2">
+                                            <RefreshCw className="w-5 h-5 animate-spin mr-2" />
+                                            Memuat lebih banyak...
+                                        </div>
+                                    )}
+                                    {!isLoading && !isLoadingMoreAnalyses && hasMoreAnalyses && (
+                                        <button
+                                            onClick={() => fetchUserAnalyses(currentPageAnalyses + 1, true)}
+                                            className="bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-6 rounded-lg transition-colors shadow-sm"
+                                        >
+                                            Muat Lebih Banyak Analisis ({userAnalyses.length}/{totalAnalysesCount})
+                                        </button>
+                                    )}
+                                    {!isLoading && !isLoadingMoreAnalyses && !hasMoreAnalyses && userAnalyses.length > 0 && (
+                                        <p className="text-gray-500 text-sm py-2">Semua ({totalAnalysesCount}) riwayat analisis telah dimuat.</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}
@@ -306,7 +384,7 @@ const UserDashboard = ({ user }) => {
                                     <MessageSquare className="w-6 h-6 sm:w-7 sm:h-7 mr-3 text-indigo-600" /> Postingan Forum Saya
                                 </h2>
                                 {userPosts.length === 0 && !isLoading ? (
-                                    <div className="text-center py-8">
+                                    <div className="text-center py-10">
                                         <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                                         <p className="text-gray-500">Anda belum membuat postingan apapun di forum.</p>
                                     </div>
@@ -375,7 +453,6 @@ const AnalysisDetailsModal = ({ analysisItem, onClose }) => {
         borderColor: diseaseInfo.isHealthy ? 'border-green-200' : 'border-red-200'
     };
 
-    // Re-use formatDate from the parent scope or pass it as a prop if modal becomes a separate file
     const formatDateForModal = (dateString) => {
         if (!dateString) return 'Tanggal tidak valid';
         const date = new Date(dateString);
@@ -384,7 +461,6 @@ const AnalysisDetailsModal = ({ analysisItem, onClose }) => {
             hour: '2-digit', minute: '2-digit'
         });
     };
-
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">

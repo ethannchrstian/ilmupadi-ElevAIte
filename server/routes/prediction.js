@@ -7,15 +7,11 @@ const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
 
-const predictionKey = '7V6HyD88reAMoW7JfjRHpqqkkAuZ1BecCiziY5TXULD56MeY8J4nJQQJ99BEACqBBLyXJ3w3AAAIACOGs6AR';
-const endpoint = 'https://ricediseases-prediction.cognitiveservices.azure.com/';
-const projectId = 'e64294ab-c1cf-4924-acd1-b0f68bbc88c8';
-const publishedName = 'IlmuPadi-BetaTest';
+const predictionKey = process.env.AZURE_PREDICTION_KEY;
+const endpoint = process.env.AZURE_ENDPOINT;
+const projectId = process.env.AZURE_PROJECT_ID;
+const publishedName = process.env.AZURE_PUBLISHED_NAME;
 
-// const predictionKey = 'Dv3t6rddpt6ru91a2Gjst0tCAaD2GJMY8JsZQQtIWkpGtY36v1ofJQQJ99BEACqBBLyXJ3w3AAAJACOGhXcL';
-// const endpoint = 'https;//sahabattani.cognitiveservices.azure.com/';
-// const projectId = '999632a2-49bb-4c76-8ba5-4ad3a8086b82';
-// const publishedName = 'Sahabat Tani - Rice Disease Prediction';
 
 router.get('/test', (req, res) => {
     res.send('Prediction router is working!');

@@ -5,7 +5,7 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 router.get('/posts/user/:userId', async (req, res) => {
-    console.log(`--- [SERVER LOG] FORUM.JS: Hit /api/posts/user/${req.params.userId} ---`); // For debugging
+    // console.log(`--- [SERVER LOG] FORUM.JS: Hit /api/posts/user/${req.params.userId} ---`); // For debugging
     const { userId } = req.params;
 
     try {
@@ -15,7 +15,7 @@ router.get('/posts/user/:userId', async (req, res) => {
             return res.status(400).json({ message: 'User ID tidak valid.' });
         }
 
-        console.log(`--- [SERVER LOG] FORUM.JS: Querying posts for authorId: ${idToQuery} ---`);
+        // console.log(`--- [SERVER LOG] FORUM.JS: Querying posts for authorId: ${idToQuery} ---`);
         const userPosts = await prisma.post.findMany({
             where: {
                 authorId: idToQuery
@@ -35,7 +35,7 @@ router.get('/posts/user/:userId', async (req, res) => {
 
         });
 
-        console.log(`--- [SERVER LOG] FORUM.JS: Found ${userPosts.length} posts for authorId: ${idToQuery} ---`);
+        // console.log(`--- [SERVER LOG] FORUM.JS: Found ${userPosts.length} posts for authorId: ${idToQuery} ---`);
         res.json(userPosts);
     } catch (error) {
         console.error(`--- [SERVER LOG] FORUM.JS: Error fetching posts for user ${userId}:`, error);
