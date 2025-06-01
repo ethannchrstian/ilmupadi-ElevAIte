@@ -208,4 +208,171 @@ router.delete('/posts/:id', async (req, res) => {
     }
 });
 
+
+// // Get all replies for a specific post
+// router.get('/posts/:id/replies', async (req, res) => {
+//     const { id } = req.params;
+
+//     try {
+//         const post = await prisma.post.findUnique({
+//             where: { id: parseInt(id) }
+//         });
+
+//         if (!post) {
+//             return res.status(404).json({ message: 'Post tidak ditemukan' });
+//         }
+
+//         const replies = await prisma.reply.findMany({
+//             where: { postId: parseInt(id) },
+//             include: {
+//                 author: {
+//                     select: {
+//                         id: true,
+//                         name: true,
+//                         email: true
+//                     }
+//                 }
+//             },
+//             orderBy: {
+//                 createdAt: 'asc'
+//             }
+//         });
+
+//         res.json(replies);
+//     } catch (error) {
+//         console.error('Error fetching replies:', error);
+//         res.status(500).json({ message: 'Gagal mengambil replies' });
+//     }
+// });
+
+// // Create new reply for a specific post
+// router.post('/posts/:id/replies', async (req, res) => {
+//     const { id } = req.params;
+//     const { content, authorId } = req.body;
+
+//     if (!content || !authorId) {
+//         return res.status(400).json({ message: 'Content dan authorId wajib diisi' });
+//     }
+
+//     try {
+//         // Check if post exists
+//         const post = await prisma.post.findUnique({
+//             where: { id: parseInt(id) }
+//         });
+
+//         if (!post) {
+//             return res.status(404).json({ message: 'Post tidak ditemukan' });
+//         }
+
+//         // Check if user exists
+//         const user = await prisma.user.findUnique({
+//             where: { id: parseInt(authorId) }
+//         });
+
+//         if (!user) {
+//             return res.status(404).json({ message: 'User tidak ditemukan' });
+//         }
+
+//         const newReply = await prisma.reply.create({
+//             data: {
+//                 content,
+//                 authorId: parseInt(authorId),
+//                 postId: parseInt(id)
+//             },
+//             include: {
+//                 author: {
+//                     select: {
+//                         id: true,
+//                         name: true,
+//                         email: true
+//                     }
+//                 }
+//             }
+//         });
+
+//         res.status(201).json(newReply);
+//     } catch (error) {
+//         console.error('Error creating reply:', error);
+//         res.status(500).json({ message: 'Gagal membuat reply' });
+//     }
+// });
+
+// // Update reply (optional - if you want to allow editing replies)
+// router.put('/posts/:postId/replies/:replyId', async (req, res) => {
+//     const { postId, replyId } = req.params;
+//     const { content, authorId } = req.body;
+
+//     try {
+//         const existingReply = await prisma.reply.findUnique({
+//             where: { id: parseInt(replyId) }
+//         });
+
+//         if (!existingReply) {
+//             return res.status(404).json({ message: 'Reply tidak ditemukan' });
+//         }
+
+//         if (existingReply.authorId !== parseInt(authorId)) {
+//             return res.status(403).json({ message: 'Tidak diizinkan mengedit reply orang lain' });
+//         }
+
+//         if (existingReply.postId !== parseInt(postId)) {
+//             return res.status(400).json({ message: 'Reply tidak sesuai dengan post' });
+//         }
+
+//         const updatedReply = await prisma.reply.update({
+//             where: { id: parseInt(replyId) },
+//             data: {
+//                 content: content || existingReply.content
+//             },
+//             include: {
+//                 author: {
+//                     select: {
+//                         id: true,
+//                         name: true,
+//                         email: true
+//                     }
+//                 }
+//             }
+//         });
+
+//         res.json(updatedReply);
+//     } catch (error) {
+//         console.error('Error updating reply:', error);
+//         res.status(500).json({ message: 'Gagal mengupdate reply' });
+//     }
+// });
+
+// // Delete reply (optional - if you want to allow deleting replies)
+// router.delete('/posts/:postId/replies/:replyId', async (req, res) => {
+//     const { postId, replyId } = req.params;
+//     const { authorId } = req.body;
+
+//     try {
+//         const existingReply = await prisma.reply.findUnique({
+//             where: { id: parseInt(replyId) }
+//         });
+
+//         if (!existingReply) {
+//             return res.status(404).json({ message: 'Reply tidak ditemukan' });
+//         }
+
+//         if (existingReply.authorId !== parseInt(authorId)) {
+//             return res.status(403).json({ message: 'Tidak diizinkan menghapus reply orang lain' });
+//         }
+
+//         if (existingReply.postId !== parseInt(postId)) {
+//             return res.status(400).json({ message: 'Reply tidak sesuai dengan post' });
+//         }
+
+//         await prisma.reply.delete({
+//             where: { id: parseInt(replyId) }
+//         });
+
+//         res.json({ message: 'Reply berhasil dihapus' });
+//     } catch (error) {
+//         console.error('Error deleting reply:', error);
+//         res.status(500).json({ message: 'Gagal menghapus reply' });
+//     }
+// });
+
 export default router;
