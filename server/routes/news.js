@@ -29,14 +29,14 @@ router.get("/news", async (req, res) => {
             return res.status(500).json({ error: "News API key not configured" });
         }
 
-        // Build params - only include what's provided or required
+        // Build params 
         const params = {
             q: q,
             language: language,
             apiKey: NEWS_API_KEY
         };
 
-        // Only add optional parameters if they're explicitly provided
+        // Only add params if explicitly given
         if (page) params.page = page;
         if (pageSize) params.pageSize = pageSize;
         if (sortBy) params.sortBy = sortBy;
