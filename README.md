@@ -1,21 +1,22 @@
 Sahabat Tani is a web application to help rice farmers detect plant diseases using image uploads. It also includes a forum for discussions and a news section about agriculture.
 
-Features
-Upload rice leaf images to detect diseases using AI (Azure Custom Vision)
+Features:
 
-View information about symptoms, treatments, and prevention
+- Upload rice leaf images to detect diseases using AI (Azure Custom Vision)
 
-Register and log in to save your scan history
+- View information about symptoms, treatments, and prevention
 
-Dashboard showing number of scans and analysis results
+- Register and log in to save your scan history
 
-Forum for users to post and share information
+- Dashboard showing number of scans and analysis results
 
-News section with articles about farming
+- Forum for users to post and share information
 
-Tech Stack
-Frontend: React (Vite), Tailwind CSS
-Backend: Node.js, Express.js
-Database: PostgreSQL (Prisma ORM)
-AI: Azure Custom Vision
-Containerization: Docker, Docker Compose
+- News section with articles about farming
+
+Tech Stack:
+- Frontend: React (Vite), Tailwind CSS
+- Backend: Node.js, Express.js
+- Database: PostgreSQL (Prisma ORM)
+- AI: Azure Custom Vision
+- Containerization: Docker, Docker Compose
